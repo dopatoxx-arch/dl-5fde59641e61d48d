@@ -2,8 +2,11 @@
 set -Eeuo pipefail
 umask 077
 [[ $EUID -ne 0 ]] || { echo 'Run as your normal user, not with sudo.' >&2; exit 2; }
-[[ $(uname -m) == x86_64 && -d /usr/share/omarchy && -f /boot/limine.conf && -d /sys/firmware/efi ]] || { echo 'Requires x86_64 Omarchy with UEFI/Limine.' >&2; exit 2; }
+[[ $(uname -m) == x86_64 && -d /usr/share/omarchy && -d /sys/firmware/efi ]] || { echo 'Requires x86_64 Omarchy with UEFI/Limine.' >&2; exit 2; }
 for cmd in curl gpg sha256sum sudo mount umount mktemp; do command -v "$cmd" >/dev/null || { echo "Missing command: $cmd" >&2; exit 2; }; done
+# The EFI partition may be accessible only to root on Omarchy.
+sudo -v
+sudo test -f /boot/limine.conf || { echo 'Limine configuration /boot/limine.conf is missing.' >&2; exit 2; }
 free=$(df -Pk /var/tmp | awk 'NR==2 {print $4}')
 [[ $free -ge 2097152 ]] || { echo 'At least 2 GiB free space in /var/tmp is required.' >&2; exit 2; }
 work=$(mktemp -d /var/tmp/dopatox-download.XXXXXXXX)
