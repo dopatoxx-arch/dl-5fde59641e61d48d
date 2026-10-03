@@ -1,0 +1,1 @@
+Encrypted installation artifact. The package requires an independently supplied password. Only encrypted payload and download bootstrap are published. The bootstrap installs a candidate x86_64 Omarchy/UEFI/Limine package, including its custom kernel. It is not a Windows or macOS installer.
