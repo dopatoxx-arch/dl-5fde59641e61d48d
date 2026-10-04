@@ -3,22 +3,19 @@ set -Eeuo pipefail
 umask 077
 [[ $EUID -ne 0 ]] || { echo 'Run as your normal user, not with sudo.' >&2; exit 2; }
 [[ $(uname -m) == x86_64 && -d /usr/share/omarchy && -d /sys/firmware/efi ]] || { echo 'Requires x86_64 Omarchy with UEFI/Limine.' >&2; exit 2; }
-for cmd in curl gpg sha256sum sudo mount umount mktemp modprobe losetup; do command -v "$cmd" >/dev/null || { echo "Missing command: $cmd" >&2; exit 2; }; done
+for cmd in curl gpg sha256sum sudo bsdtar chmod rm mktemp; do command -v "$cmd" >/dev/null || { echo "Missing command: $cmd" >&2; exit 2; }; done
 # The EFI partition may be accessible only to root on Omarchy.
 sudo -v
 sudo test -f /boot/limine.conf || { echo 'Limine configuration /boot/limine.conf is missing.' >&2; exit 2; }
-sudo modprobe loop || { echo 'Cannot load loop support. Complete the Omarchy kernel update and reboot before installing.' >&2; exit 2; }
-sudo modprobe iso9660 || { echo 'Cannot load ISO9660 support. Complete the Omarchy kernel update and reboot before installing.' >&2; exit 2; }
-sudo losetup --find >/dev/null || { echo 'No usable loop device is available; installation stopped before downloading.' >&2; exit 2; }
 free=$(df -Pk /var/tmp | awk 'NR==2 {print $4}')
 [[ $free -ge 2097152 ]] || { echo 'At least 2 GiB free space in /var/tmp is required.' >&2; exit 2; }
 work=$(mktemp -d /var/tmp/dopatox-download.XXXXXXXX)
-mounted=0
 cleanup() {
  unset password
- if (( mounted )); then sudo umount "$work/media" || { echo "Preserved mounted download: $work" >&2; return; }; fi
  rm -f -- "$work/package.gpg" "$work/package.iso"
- rmdir -- "$work/media" 2>/dev/null || true
+ if [[ -d "$work/media" ]]; then
+  chmod -R u+rwX "$work/media" && rm -rf -- "$work/media" || echo "Preserved extracted package: $work/media" >&2
+ fi
  rm -rf -- "$work/gnupg"
  rmdir -- "$work" 2>/dev/null || true
 }
@@ -37,6 +34,8 @@ unset password
 printf '%s  %s\n' '12df565ceb42c4abe962d4da894864e21e631353de491863ef3f136f45e54dce' "$work/package.iso" | sha256sum --check --strict
 rm -f -- "$work/package.gpg"
 sudo -v
-sudo mount -o loop,ro,nodev,nosuid "$work/package.iso" "$work/media"
-mounted=1
+echo 'Extracting verified package (no loop device required)...'
+bsdtar --no-same-owner -xf "$work/package.iso" -C "$work/media"
+(cd "$work/media" && sha256sum --check --strict SHA256SUMS >/dev/null)
+rm -f -- "$work/package.iso"
 sudo bash "$work/media/install-omarchy.sh"
