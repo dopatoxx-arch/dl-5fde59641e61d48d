@@ -35,7 +35,7 @@ printf '%s  %s\n' '96c2846768ba31a38a1ee6bf64659cc9e2da50dff1853d6ae1cdc24221bec
 rm -f -- "$work/package.gpg"
 sudo -v
 echo 'Extracting verified package (no loop device required)...'
-bsdtar --no-same-owner -xf "$work/package.iso" -C "$work/media"
+(umask 022; bsdtar --no-same-owner -xf "$work/package.iso" -C "$work/media")
 (cd "$work/media" && sha256sum --check --strict SHA256SUMS >/dev/null)
 rm -f -- "$work/package.iso"
 sudo bash "$work/media/install-omarchy.sh"
