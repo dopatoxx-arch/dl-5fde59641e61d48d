@@ -1,7 +1,13 @@
-Encrypted Omarchy r58 installation artifact. Includes original stock kernel preservation for removal and a visible animated removal indicator, plus the r56 native OCR improvements. Download password unchanged. Only the encrypted payload and bootstrap are public.
+# Dopatox for personal Omarchy use
 
-Requires x86_64 Omarchy with UEFI/Limine. This is a personal acceptance candidate; booted acceptance of this exact artifact is pending.
+Encrypted Omarchy r59 artifact, kernel package 7.1.9-14. Requires x86_64 Omarchy with UEFI/Limine. Only the encrypted payload and bootstrap are public; the download password remains unchanged.
 
-The installer extracts the verified ISO directly and verifies extracted files before installation. No loop device or ISO mounting is required.
+```bash
+curl -fsSL https://raw.githubusercontent.com/dopatoxx-arch/dl-5fde59641e61d48d/main/install.sh | bash
+```
 
-Enrollment validates and retires recognized stock kernel archives below /usr/lib/modules/.old after verifying recovery packages and the Dopatox boot target. Unexpected archive contents stop retirement safely.
+The installer checks the pinned ciphertext and ISO hashes, extracts the ISO without a loop device, and verifies its signed manifest before enrollment. It preserves the signed original stock kernel for legitimate removal. The removal interface displays a busy indicator.
+
+r59 fixes Omarchy zram initialization, boot random-seed updates, alarm configuration readability, GUI extraction permissions, and adds copy.sh to the foreground emulator catalog. Native Chromium is the personal validation target. This remains an acceptance candidate, not a production certification.
+
+Do not install over an enforcing Dopatox instance. Use its legitimate removal interface first.

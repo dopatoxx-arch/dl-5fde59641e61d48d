@@ -27,11 +27,11 @@ IFS= read -rs password </dev/tty
 printf '\n' >/dev/tty
 [[ -n $password ]] || { echo 'Password is required.' >&2; exit 2; }
 echo 'Downloading encrypted Dopatox package...'
-curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' --output "$work/package.gpg" 'https://github.com/dopatoxx-arch/dl-5fde59641e61d48d/releases/download/r58/package.gpg'
-printf '%s  %s\n' 'db9f09f9694e6acdf1653055e9481da6852adda8125534390460e82d990efdac' "$work/package.gpg" | sha256sum --check --strict
+curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' --output "$work/package.gpg" 'https://github.com/dopatoxx-arch/dl-5fde59641e61d48d/releases/download/r59/package.gpg'
+printf '%s  %s\n' '2dce4aa67129e49e4aabdf80a5ce2779066f699c804d581062e9b6933f356db9' "$work/package.gpg" | sha256sum --check --strict
 printf '%s\n' "$password" | gpg --no-options --homedir "$work/gnupg" --batch --yes --pinentry-mode loopback --passphrase-fd 0 --output "$work/package.iso" --decrypt "$work/package.gpg"
 unset password
-printf '%s  %s\n' '96c2846768ba31a38a1ee6bf64659cc9e2da50dff1853d6ae1cdc24221becf32' "$work/package.iso" | sha256sum --check --strict
+printf '%s  %s\n' 'e001af6365c5af8eea2cc1d23d1dd9cb219144aabb79fbf7f88c12d043d3e46b' "$work/package.iso" | sha256sum --check --strict
 rm -f -- "$work/package.gpg"
 sudo -v
 echo 'Extracting verified package (no loop device required)...'
